@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <vector>
 #include <cstdlib>
+#include <utility>
 
 #define SERVER_ADRESS "127.0.0.1"
 #define UDP_SERVER_PORT 1641
@@ -106,7 +107,7 @@ int main()
 
     listen(t_listener, 2);
 
-    vector<pair<int, bool>> clients;
+    vector<pair<int, bool> > clients;
     clients.clear();
 
 
@@ -161,7 +162,7 @@ int main()
 
         sort(clients.begin(), clients.end());
 
-        for (auto i = 0; i < clients.size(); ++i)
+        for (size_t i = 0; i < clients.size(); ++i)
         {
             if (FD_ISSET(clients[i].first, &readset))
             {

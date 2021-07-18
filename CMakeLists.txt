@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.5)
+set(CXX_FLAGS "-std=c++14")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++-5")
+project(Server)
+set(SERVERSOURCES Server.cpp)
+add_executable(Server ${SERVERSOURCES})
+
+project(Client)
+set(CLIENTSOURCES Client.cpp)
+add_executable(Client ${CLIENTSOURCES})
