@@ -2,10 +2,6 @@
 #include <regex>
 #include "UDP_Client.h"
 
-#define SERVER_ADRESS "127.0.0.1"
-#define UDP_SERVER_PORT 1641
-#define TCP_SERVER_PORT 1955
-
 using namespace std;
 
 int main(int argc, char *argv[])
