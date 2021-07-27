@@ -1,4 +1,3 @@
-//#pragma once
 #include "IClient.h"
 
 class TCP_Client : public IClient
