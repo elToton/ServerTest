@@ -1,3 +1,4 @@
+//#pragma once
 #include "TCP_Client.h"
 
 class UDP_Client : public IClient

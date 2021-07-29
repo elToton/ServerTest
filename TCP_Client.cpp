@@ -45,7 +45,22 @@ int TCP_Client::GetPort()
 
 void TCP_Client::LoadData()
 {
-    ssize_t read_bytes = recv(sock, buf, sizeof(buf), 0);
+    unsigned int package_size;
+    memset(buf, 0, 1024);
+
+    ssize_t read_bytes = recv(sock, (char*)&package_size, sizeof(package_size), 0);
+    if (read_bytes == 0)
+    {
+        perror("Server crashed, please try to reconnect.\n");
+        close(sock);
+        exit(0);
+    } else if (read_bytes < 0)
+    {
+        perror("recv error\n");
+        close(sock);
+        exit(1);
+    }
+    read_bytes = recv(sock, buf, package_size, 0);
     if (read_bytes == 0)
     {
         perror("Server crashed, please try to reconnect.\n");
@@ -66,7 +81,14 @@ char* TCP_Client::GetData()
 
 void TCP_Client::SendData(const char* buffer)
 {
-    if (send(sock, buffer, sizeof(buffer), 0) < 0)
+    unsigned int write_bytes;
+    if (send(sock, (char*)&write_bytes, sizeof(write_bytes), 0) < 0)
+    {
+        perror("sendto error\n");
+        close(sock);
+        exit(1);
+    }
+    if (send(sock, buffer, strlen(buffer), 0) < 0)
     {
         perror("sendto error\n");
         close(sock);
@@ -86,4 +108,35 @@ TCP_Client::~TCP_Client()
 {
     shutdown(sock, 0);
     close(sock);
+}
+
+int sendall(int s, char *buf, int len, int flags)
+{
+    int total = 0;
+    int n;
+
+    while(*(buf+total) != '\0')
+    {
+        n = send(s, buf+total, 1, flags);
+        if (n == -1)
+            break;
+        ++total;
+    }
+
+    return (n == -1 ? -1 : total);
+}
+
+int recvall(int s, char *buf, int len, int flags)
+{
+    int total = 0;
+    int n;
+
+    while(total < len)
+    {
+        n = recv(s, &buf[total], len - total, flags);
+        if (n == -1)
+            break;
+        total += n;
+    }
+    return (n == -1 ? -1 : total);
 }

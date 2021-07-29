@@ -1,3 +1,4 @@
+//#pragma once
 #include "IClient.h"
 
 class TCP_Client : public IClient
@@ -20,4 +21,7 @@ public:
     char* GetData();
     void SendData(const char* buffer);
     bool CloseClient(const char* buffer);
+
+    int sendall(int s, char *buf, int len, int flags);
+    int recvall(int s, char *buf, int len, int flags);
 };

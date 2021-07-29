@@ -38,9 +38,20 @@ int UDP_Client::GetPort()
 
 void UDP_Client::LoadData()
 {
-    ssize_t read_bytes = recvfrom(sock, buf, sizeof(buf), 0, 
-        reinterpret_cast<struct sockaddr*>(&server_address), &sockSize);
-    if(read_bytes < 0)
+    //char* package_size;
+    unsigned int package_size;
+    if (recvfrom(sock, (char*)&package_size, sizeof(package_size), 0, 
+        reinterpret_cast<struct sockaddr*>(&server_address), &sockSize) < 0)
+    {
+        perror("recvfr error\n");
+        close(sock);
+        exit(3);
+    }
+    
+    memset(buf, 0, 1024);
+    
+    if (recvfrom(sock, buf, package_size, 0, 
+        reinterpret_cast<struct sockaddr*>(&server_address), &sockSize) < 0)
     {
         perror("recvfrom error\n");
         close(sock);
@@ -55,7 +66,16 @@ char* UDP_Client::GetData()
 
 void UDP_Client::SendData(const char* buffer)
 {
-    if (sendto(sock, buffer, sizeof(buffer), 0, 
+    //const char* write_bytes = std::to_string(strlen(buffer)).c_str();
+    unsigned int write_bytes = strlen(buffer);
+    if (sendto(sock, (char*)&write_bytes, sizeof(write_bytes), 0,
+        reinterpret_cast<struct sockaddr*>(&server_address), sockSize) == -1)
+        {
+            perror("sendto error\n");
+            close(sock);
+            exit(4);
+        }
+    if (sendto(sock, buffer, strlen(buffer), 0, 
         reinterpret_cast<struct sockaddr*>(&server_address), sockSize) == -1)
         {
             perror("sendto error\n");

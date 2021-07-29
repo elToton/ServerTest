@@ -90,13 +90,22 @@ void Server::SetSelect()
 
 void Server::LoadData(size_t i)
 {
+    unsigned int package_size;
+    memset(buf, 0, 1024);
     if (clients[i].second)
     {
-        bytes_read = recv(clients[i].first, buf, sizeof(buf), 0);
+        recv(clients[i].first, (char*)&package_size, sizeof(package_size), 0);
+        bytes_read = recv(clients[i].first, buf, package_size, 0);
     }
     else
     {
-        bytes_read = recvfrom(clients[i].first, buf, sizeof(buf), 0,
+        if (recvfrom(clients[i].first, (char*)&package_size, sizeof(package_size), 0, 
+        reinterpret_cast<struct sockaddr*>(&udp_server_address), &udp_size) < 0)
+        {
+            perror("recvfrom error\n");
+            exit(4);
+        }
+        bytes_read = recvfrom(clients[i].first, buf, package_size, 0,
             reinterpret_cast<struct sockaddr *>(&udp_server_address), &udp_size);
         if (bytes_read == -1)
         {
@@ -106,15 +115,23 @@ void Server::LoadData(size_t i)
     }
 }
 
-void Server::SendData(size_t i, const char *buffer)
+void Server::SendData(size_t i, char *buffer)
 {
-    char* write_bytes = handler->Handle(buf);
-    if (clients[i].second){
-        send(clients[i].first, write_bytes, sizeof(write_bytes), 0);
+    unsigned int write_bytes = strlen(buffer);
+    if (clients[i].second)
+    {
+        send(clients[i].first, (char*)&write_bytes, sizeof(write_bytes), 0);
+        send(clients[i].first, buffer, strlen(buffer), 0);
     }
     else
     {
-        if (sendto(clients[i].first, write_bytes, sizeof(write_bytes), 0,
+        if (sendto(clients[i].first, (char*)&write_bytes, sizeof(write_bytes), 0,
+        reinterpret_cast<struct sockaddr*>(&udp_server_address), udp_size) == -1)
+        {
+            perror("send error\n");
+            exit(5);
+        }
+        if (sendto(clients[i].first, buffer, strlen(buffer), 0,
                    reinterpret_cast<struct sockaddr *>(&udp_server_address), udp_size) == -1)
         {
             perror("sendto recv");
@@ -143,7 +160,7 @@ void Server::ClientsContact()
                 continue;
             }
 
-            SendData(i, buf);
+            SendData(i, handler->Handle(buf));
 
             if (!(clients[i].second))
                 clients.erase(clients.begin() + i);

@@ -46,7 +46,7 @@ public:
     void Connect();
     void SetSelect();
     void LoadData(size_t i);
-    void SendData(size_t i, const char* buffer);
+    void SendData(size_t i, char* buffer);
     void ClientsContact();
     ~Server();
 };
