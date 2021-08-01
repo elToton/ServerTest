@@ -109,34 +109,3 @@ TCP_Client::~TCP_Client()
     shutdown(sock, 0);
     close(sock);
 }
-
-int sendall(int s, char *buf, int len, int flags)
-{
-    int total = 0;
-    int n;
-
-    while(*(buf+total) != '\0')
-    {
-        n = send(s, buf+total, 1, flags);
-        if (n == -1)
-            break;
-        ++total;
-    }
-
-    return (n == -1 ? -1 : total);
-}
-
-int recvall(int s, char *buf, int len, int flags)
-{
-    int total = 0;
-    int n;
-
-    while(total < len)
-    {
-        n = recv(s, &buf[total], len - total, flags);
-        if (n == -1)
-            break;
-        total += n;
-    }
-    return (n == -1 ? -1 : total);
-}
