@@ -94,6 +94,7 @@ bool UDP_Client::CloseClient(const char* buffer)
 
 UDP_Client::~UDP_Client()
 {
+    delete IP;
     delete [] buf;
     close(sock);
 }
