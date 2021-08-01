@@ -106,6 +106,7 @@ bool TCP_Client::CloseClient(const char* buffer)
 
 TCP_Client::~TCP_Client()
 {
+    delete IP;
     delete [] buf;
     shutdown(sock, 0);
     close(sock);
