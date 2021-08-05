@@ -27,4 +27,5 @@ public:
     virtual char* GetData() = 0;
     virtual void SendData(const char* buf) = 0;
     virtual bool CloseClient(const char* buffer) = 0;
+    virtual ~IClient(){};
 };
